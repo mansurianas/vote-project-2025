@@ -1,0 +1,37 @@
+version: '3.9'
+services:
+  vote:
+    build: ./vote # Build docker image from docker file located in ./vote directory
+    container_name: vote # name of the container
+    ports:
+      - '2000:80' # map port 2000 on the host to port 80 in container
+    depends_on:
+      - redis # this service depends on redis service 
+
+
+  redis:
+    image: redis # use official redis image from docker hub
+    container_name: redis # name of the container
+    ports:
+      - '6379:6379' # map port 6379 on host to port 6379 in container
+  worker:
+    build: ./worker # build docker image from dockerfile located in ./workerdirectory
+    container_name: worker # name of the container
+    depends_on:
+      - redis # this service depends on redis service
+      - postgres # this service depends on postgres service
+
+  postgres:
+    image: postgres # use the official postgreSQL image from docker hub
+    container_name: postgres # name of the container
+    ports: 
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres # user 
+      POSTGRES_PASSWORD: postgres # password
+  result:
+    build: ./result  # build docker image from dockerfile located in ./result directory
+    ports:
+      - '4000:4000' # map port 4000 on the host to port 4000 in container
+  depends_on:
+    - postgres
